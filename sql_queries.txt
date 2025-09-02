@@ -219,3 +219,83 @@ FROM Sales
 GROUP BY Category
 HAVING SUM(Quantity) > 5;
 
+
+
+
+
+
+--------------------------------------------------------------DBEAVER-----------------------------------------
+CREATE TABLE Departments(DeptID INT PRIMARY KEY,DeptName NVARCHAR(100))
+INSERT INTO Departments (DeptID,DeptName) VALUES (1, 'IT'),
+(2, 'HR'),
+(3, 'Finance'),
+(4, 'Marketing')
+SELECT * from Departments 
+TRUNCATE TABLE Customers;
+DROP TABLE Departments;
+UPDATE Departments SET DeptName = 'IT' WHERE DeptID = 1;
+UPDATE d SET d.DeptName = 'ITR' FROM Departments d WHERE d.DeptID = 1;		--aliased version
+DELETE from Departments WHERE DeptID = 5
+
+
+
+SELECT * from Departments 
+SELECT * from Employees
+SELECT * from Customers
+SELECT * from Products
+SELECT * from Employees_2024
+SELECT * from Employees_2025
+SELECT * from Sales
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+SELECT d.DeptName,e.EmployeeName ,e.EmployeeID,e.DepartmentID,d.DeptID
+from Employees e INNER JOIN Departments d ON e.DepartmentID = d.DeptID
+
+
+SELECT e.EmployeeID ,e.EmployeeName,d.DeptName,e.DepartmentID,d.DeptID from Employees e
+LEFT JOIN Departments d ON e.DepartmentID = d.DeptID
+
+
+SELECT e.EmployeeID ,e.EmployeeName,d.DeptName,e.DepartmentID,d.DeptID from Employees e
+RIGHT JOIN Departments d ON e.DepartmentID = d.DeptID
+
+
+SELECT e.EmployeeID ,e.EmployeeName,d.DeptName,e.DepartmentID,d.DeptID from Employees e
+FULL OUTER  JOIN Departments d ON e.DepartmentID = d.DeptID
+
+
+SELECT e.EmployeeID,e.EmployeeName,d.DeptName,e.DepartmentID,d.DeptID from Employees e
+LEFT JOIN Employees m on e.ManagerID = m.EmployeeID 
+INNER JOIN Departments d on e.DepartmentID = d.DeptID
+
+
+-------------------------------------------------------------------------------------------------
+
+Select * from Employees e ORDER BY e.EmployeeName ASC;
+Select * from Employees e WHERE e.EmployeeID = 5;
+Select * from Customers c WHERE c.Country = 'Mexico' AND c.CustomerID = 2
+Select * from Customers c WHERE c.Country = 'Mexico' OR c.Country  = 'UK'
+Select * from Customers c WHERE c.Country IN ('Mexico','UK');
+Select COUNT(*) from Customers c;
+SELECT DISTINCT c.Country from Customers c;
+Select COUNT(DISTINCT c.Country) from Customers c;
+SELECT c.Country, COUNT(*) AS TotalCustomers FROM Customers c
+GROUP BY c.Country
+HAVING COUNT(*) > 1;
+Select * from Customers c WHERE NOT c.Country = 'UK'
+Select * from Customers c WHERE c.Country != 'UK';
+SELECT * from Employees e WHERE e.DepartmentID IS NULL
+SELECT * FROM Products p WHERE p.Price NOT BETWEEN 10 AND 20;
+SELECT EmpID,EmpName from Employees_2024 e UNION
+SELECT EmpID,EmpName from Employees_2025;
+SELECT EmpID,EmpName from Employees_2024 e UNION ALL
+SELECT EmpID,EmpName from Employees_2025;
+SELECT s.Category,COUNT(*) AS TotalProducts FROM Sales s GROUP BY s.Category
+SELECT s.Category, MIN(s.Price) AS MinPrice FROM Sales s GROUP BY s.Category;		--Cheapest product
