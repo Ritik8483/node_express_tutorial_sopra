@@ -236,8 +236,9 @@ DROP TABLE Departments;
 UPDATE Departments SET DeptName = 'IT' WHERE DeptID = 1;
 UPDATE d SET d.DeptName = 'ITR' FROM Departments d WHERE d.DeptID = 1;		--aliased version
 DELETE from Departments WHERE DeptID = 5
-
-
+ALTER TABLE Employees ADD CONSTRAINT fk_Department 
+FOREIGN KEY (DepartmentID) REFERENCES Departments(DeptID);	--adding FK
+ALTER TABLE Products ADD CONSTRAINT chk_Price CHECK (Price > 0);	--Ensures that the column Price must always be greater than 0
 
 SELECT * from Departments 
 SELECT * from Employees
@@ -416,3 +417,138 @@ WHERE e.Salary = (
     FROM Employees_Salary 
     WHERE DepartmentID = e.DepartmentID
 );
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------ADVANCED------------------------------------
+
+1. Views
+Definition: A view is a virtual table based on the result of a query. It doesn’t store data physically (except Indexed Views) but pulls it from base tables.
+Usage: Mainly for data abstraction, reusability, and security (you can restrict columns/rows).
+Return type: Always returns a result set (like a table).
+Parameters: Cannot accept parameters (in SQL Server).
+Transaction: Cannot handle business logic or transactions.
+Modification: Can sometimes be used to update/insert/delete data if the view is updatable (but not always).
+
+
+Stored Procedure
+Definition: A stored procedure is a set of SQL statements stored in the database and executed as a unit.
+Usage: Used for business logic, data manipulation, transactions, and complex operations.
+Return type: Can return:
+No value
+Multiple result sets
+Output parameters
+Status code (integer)
+Parameters: Accepts input, output, and default parameters.
+Transaction support: Yes, you can use BEGIN TRANSACTION, COMMIT, ROLLBACK.
+Performance: Precompiled, so runs faster.
+
+
+3.Functions
+Definition: A function is a routine that returns a value (scalar or table).
+Types:
+Scalar Function → Returns a single value (e.g., string, number, date).
+Table-Valued Function → Returns a table (can be used like a view).
+Usage: For calculations, reusable expressions, and returning values inside queries.
+Return type: Must return exactly one value (scalar) or one table (table-valued).
+Parameters: Must have at least one input parameter (no output params).
+Transaction support: Cannot use TRY…CATCH, COMMIT, ROLLBACK inside functions.
+
+
+
+CREATE VIEW ActiveEmployees
+AS
+SELECT *
+FROM Employees_Salary
+WHERE Salary > 50000;
+
+
+Select * from ActiveEmployees
+
+
+CREATE PROCEDURE GetEmployeesByDept 
+    @DeptID INT
+AS
+BEGIN
+    SELECT 
+        es.EmployeeID,
+        es.EmployeeName,
+        es.Salary,
+        es.DepartmentID,
+        d.DeptID,
+        d.DeptName
+    FROM Employees_Salary es
+    INNER JOIN Departments d 
+        ON es.DepartmentID = d.DeptID
+    WHERE d.DeptID = @DeptID;
+END;
+
+
+EXEC GetEmployeesByDept @DeptID = 1;
+
+
+
+
+CREATE FUNCTION GetFullName (@EmployeeName NVARCHAR(50), @DeptName NVARCHAR(50))
+RETURNS NVARCHAR(100)
+AS
+BEGIN
+    DECLARE @FullName NVARCHAR(100);
+    SET @FullName = @EmployeeName + ' ' + @DeptName;
+    RETURN @FullName;
+END;
+
+
+SELECT dbo.GetFullName(EmployeeName, DeptName)
+FROM Employees e
+JOIN Departments d ON e.DepartmentID = d.DeptID;
+
+
+
+
+
+
+
+
+BEGIN TRY
+    -- Example: Insert a new Department
+    INSERT INTO Departments (DeptID, DeptName)
+    VALUES (10, 'Research');
+
+    -- Example: Insert a new Employee under that Department
+    INSERT INTO Employees (EmployeeID, EmployeeName, DepartmentID)
+    VALUES (101, 'John Doe', 10);
+
+    -- ✅ Commit if both succeed
+    COMMIT TRANSACTION;
+    PRINT 'Transaction committed successfully.';
+END TRY
+BEGIN CATCH
+    -- ❌ Rollback if error occurs
+    ROLLBACK TRANSACTION;
+    PRINT 'Error occurred, transaction rolled back.';
+END CATCH;
+
+
+
+
+BEGIN TRY
+    -- This will fail if DeptID 99 does not exist
+    INSERT INTO Employees (EmployeeID, EmployeeName, DepartmentID)
+    VALUES (102, 'Jane Smith', 99);
+
+    PRINT 'Employee inserted successfully.';
+END TRY
+BEGIN CATCH
+    PRINT 'An error occurred!';
+    PRINT ERROR_MESSAGE();   -- Show the actual SQL Server error
+END CATCH;
