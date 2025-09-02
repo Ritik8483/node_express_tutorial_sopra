@@ -192,6 +192,9 @@ SELECT * from Customers c WHERE c.Country = 'Mexico' and c.CustomerID > 2		--AND
 SELECT * from Customers c WHERE c.Country = 'Mexico' OR c.Country = 'UK'			--OR
 SELECT COUNT(DISTINCT Country) from Customers			--DISTINCT COUNT BASED ON Countries
 SELECT DISTINCT Country from Customers					--DISTICT COUNTRY
+SELECT c.Country, COUNT(*) AS TotalCustomers FROM Customers c
+GROUP BY c.Country
+HAVING COUNT(*) > 1;
 SELECT * FROM Customers WHERE NOT Country = 'Mexico';		--NOT (Select only the customers that are NOT from Mexico)
 SELECT * from Employees WHERE DeptID IS NULL			--IS NULL
 UPDATE Customers SET ContactName = 'Ritik Chauhan', City= 'Sonipat' WHERE CustomerID = 1;		--UPDATE QUERY
