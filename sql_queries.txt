@@ -1,0 +1,213 @@
+CTRL + ALT + SHIFT + X  (to run all queries in new tabs)
+
+    CREATE TABLE Departments (
+        DeptID INT PRIMARY KEY,
+        DeptName NVARCHAR(50)
+    );
+
+    INSERT INTO Departments (DeptID, DeptName) VALUES
+    (1, 'IT'),
+    (2, 'HR'),
+    (3, 'Finance'),
+    (4, 'Marketing');
+
+-------------------------------------------------
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    EmployeeName VARCHAR(50),
+    ManagerID INT NULL,
+    DepartmentID INT
+);
+
+INSERT INTO Employees (EmployeeID, EmployeeName, ManagerID, DepartmentID)
+VALUES
+(1, 'Alice', NULL, 1),   -- Alice is the HR head
+(2, 'Bob', 1, 1),        -- Bob reports to Alice
+(3, 'Charlie', 1, NULL),    -- Charlie reports to Alice
+(4, 'David', 3, 2),      -- David reports to Charlie
+(5, 'Eva', 3, 5);        -- Eva reports to Charlie
+
+------------------------------------------------
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    CustomerName NVARCHAR(255) NOT NULL,
+    ContactName NVARCHAR(255) NOT NULL,
+    Address NVARCHAR(255),
+    City NVARCHAR(100),
+    PostalCode NVARCHAR(20),
+    Country NVARCHAR(100)
+);
+
+INSERT INTO Customers (CustomerID, CustomerName, ContactName, Address, City, PostalCode, Country)
+VALUES
+(6, 'The Horn', 'Thomas KOOK', '20 Hanover Sq.', 'London', 'WA1 1DP', 'UK')
+
+
+------------------------------------------------------------
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(255) NOT NULL,
+    SupplierID INT NOT NULL,
+    CategoryID INT NOT NULL,
+    Unit NVARCHAR(100),
+    Price DECIMAL(10, 2)
+);
+
+-- Insert data
+INSERT INTO Products (ProductID, ProductName, SupplierID, CategoryID, Unit, Price)
+VALUES
+(1, 'Chais', 1, 1, '10 boxes x 20 bags', 18.00),
+(2, 'Chang', 1, 1, '24 - 12 oz bottles', 19.00),
+(3, 'Aniseed Syrup', 1, 2, '12 - 550 ml bottles', 10.00),
+(4, 'Chef Anton''s Cajun Seasoning', 2, 2, '48 - 6 oz jars', 22.00),
+(5, 'Chef Anton''s Gumbo Mix', 2, 2, '36 boxes', 21.35);
+
+
+----------------------------------------------------------
+
+CREATE TABLE Employees_2024 (
+    EmpID INT,
+    EmpName VARCHAR(50)
+);
+
+INSERT INTO Employees_2024 (EmpID, EmpName)
+VALUES
+(1, 'Alice'),
+(2, 'Bob'),
+(3, 'Charlie');
+
+---------------------------------------------
+
+CREATE TABLE Employees_2025 (
+    EmpID INT,
+    EmpName VARCHAR(50)
+);
+
+INSERT INTO Employees_2025 (EmpID, EmpName)
+VALUES
+(2, 'Bob'),
+(3, 'Charlie'),
+(4, 'David');
+
+---------------------------------------------------
+
+CREATE TABLE Sales (
+    SaleID INT PRIMARY KEY,
+    ProductName VARCHAR(50),
+    Category VARCHAR(50),
+    Quantity INT,
+    Price DECIMAL(10,2)
+);
+
+INSERT INTO Sales (SaleID, ProductName, Category, Quantity, Price) VALUES
+(1, 'Laptop', 'Electronics', 2, 55000.00),
+(2, 'Mouse', 'Electronics', 5, 500.00),
+(3, 'Shirt', 'Clothing', 3, 800.00),
+(4, 'Jeans', 'Clothing', 2, 1500.00),
+(5, 'Mobile', 'Electronics', 4, 20000.00),
+(6, 'Shoes', 'Footwear', 3, 3000.00);
+
+------------------------------------------------
+
+SELECT *
+  FROM Departments
+
+
+SELECT *
+  FROM Employees
+
+
+------------------------------------------------------
+--Inner JOIN
+SELECT e.EmployeeID, e.EmployeeName, d.DeptName
+FROM Employees e
+INNER JOIN Departments d
+    ON e.DepartmentID = d.DeptID;
+
+--Only employees whose DeptID exists in Departments
+
+-----------------------------------------------------
+--LEFT JOIN
+SELECT e.EmployeeID, e.EmployeeName, d.DeptName
+FROM Employees e
+LEFT JOIN Departments d
+    ON e.DepartmentID = d.DeptID;
+
+--Returns all rows from the left table (Employees) and the matched records from the right table
+--All employees, with DeptName NULL if no department.
+
+
+---------------------------------------------------------
+--Right Join
+
+SELECT e.EmployeeID, e.EmployeeName, d.DeptName
+FROM Employees e
+RIGHT JOIN Departments d
+    ON e.DepartmentID = d.DeptID;
+
+--Returns all rows from right table (Departments) and the matched records from the left table
+
+
+--------------------------------------
+
+--Full OUTER JOIN
+
+SELECT e.EmployeeID, e.EmployeeName, d.DeptName
+FROM Employees e
+FULL OUTER JOIN Departments d
+    ON e.DepartmentID = d.DeptID;
+
+--Combination of LEFT + RIGHT join.
+--Returns all rows from both tables; NULLs where no match
+
+---------------------------------------
+--SELF JOIN
+SELECT 
+    e.EmployeeID,
+    e.EmployeeName AS Employee,
+    m.EmployeeName AS Manager,
+    d.DeptName
+FROM Employees e
+LEFT JOIN Employees m
+    ON e.ManagerID = m.EmployeeID
+INNER JOIN Departments d
+    ON e.DepartmentID = d.DeptID;
+
+--Employees e → main table for employees.
+--Employees m → same table but representing managers.
+
+----------------------------------------
+
+SELECT * from Employees ORDER BY EmpName DESC			--ORDER BY
+SELECT * from Customers c WHERE c.ContactName = 'Maria Anders'		--WHERE
+SELECT * from Customers c WHERE c.Country = 'Mexico' and c.CustomerID > 2		--AND
+SELECT * from Customers c WHERE c.Country = 'Mexico' OR c.Country = 'UK'			--OR
+SELECT COUNT(DISTINCT Country) from Customers			--DISTINCT COUNT BASED ON Countries
+SELECT DISTINCT Country from Customers					--DISTICT COUNTRY
+SELECT * FROM Customers WHERE NOT Country = 'Mexico';		--NOT (Select only the customers that are NOT from Mexico)
+SELECT * from Employees WHERE DeptID IS NULL			--IS NULL
+UPDATE Customers SET ContactName = 'Ritik Chauhan', City= 'Sonipat' WHERE CustomerID = 1;		--UPDATE QUERY
+DELETE FROM Customers WHERE CustomerName='The Horn';			--DELETE QUERY
+SELECT * FROM Products WHERE Price NOT BETWEEN 10 AND 20;
+DROP TABLE Employees;			--DROP a table
+
+SELECT EmpID, EmpName FROM Employees_2024
+UNION		--Combines results from two or more SELECT statements.Removes duplicate rows (so little slow)
+SELECT EmpID, EmpName FROM Employees_2025;
+
+SELECT EmpID, EmpName FROM Employees_2024
+UNION ALL	--Keeps duplicates.
+SELECT EmpID, EmpName FROM Employees_2025;
+
+SELECT Category, SUM(Quantity) AS TotalQuantity			--GROUP BY
+FROM Sales
+GROUP BY Category;
+
+SELECT Category, SUM(Quantity) AS TotalQuantity			--HAVING
+FROM Sales
+GROUP BY Category
+HAVING SUM(Quantity) > 5;
+
